@@ -38,6 +38,7 @@ Students often record academic papers as separate summaries, making it difficult
 - Reference-manager integrations, e.g., Zotero (Phase 3)
 - Non-English papers and non-PDF formats (Phase 3)
 - Accounts, cloud sync, and shared trackers (Phase 3)
+- Internet search for additional papers (Phase 3)
 - Generating a full literature review (not planned; the tool supports the user's judgment rather than replacing it)
 
 ## 4. Target Users
