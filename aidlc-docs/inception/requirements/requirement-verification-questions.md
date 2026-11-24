@@ -171,7 +171,7 @@ B) The upload returns at once, processing runs in the background, and the page s
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B, since a request that waits several minutes can time out and gives no feedback, while step-by-step progress shows the app is still working.
 
 ## Question 12
 
@@ -187,7 +187,7 @@ D) No fixed target. Measure it and report it
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: D, since speed depends heavily on each team member's laptop, so a fixed number now would be a guess. We'll time each step on our test papers and report the results, then set a target if needed
 
 ## Question 13
 
@@ -199,7 +199,7 @@ B) Same retries, but save whatever finished (for example the card without a clas
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A, Saving nothing on failure keeps the tracker consistent. Papers can't be removed in the MVP, so a half-saved paper would be stuck in the tracker. This is also simpler than tracking incomplete papers and re-running them.
 
 ## Question 14
 
@@ -213,7 +213,7 @@ C) Both: settings in `.env`, plus smaller chunks and batches by default
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: C, Putting the model name and context length in .env lets a slow laptop switch to a smaller model by changing the model in that file. Smaller default chunks and batches also keep each model call short and lower memory use, so the app works on more laptops without too many hardware constraints.
 
 ## Question 15
 
@@ -227,7 +227,7 @@ C) No vector embeddings for the MVP. Use keyword search (SQLite full-text search
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A, nomic-embed-text handles longer chunks than Chroma's default model, which cuts off text after about 256 tokens. Users already run Ollama, so pulling one more model keeps setup in one place.
 
 ## Question 16
 
@@ -241,7 +241,7 @@ C) Make it a setting and decide after measuring on our test set
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: C, Thinking mode trades speed for accuracy, and we can't judge that tradeoff without data. Making it a setting in .env lets us test it on our labeled papers and keep whichever setup works best. As a future feature, we can add a toggle on the upload page that lets users choose it themselves depending on their personal laptop constraints.
 
 ---
 
@@ -257,7 +257,7 @@ B) No. The team checks the metrics by hand using the web interface
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A, We'll re-test the papers each time we change a setting, like thinking mode or chunk size, and checking them by hand every time would be slow. A script makes the results quick to repeat.
 
 ---
 
@@ -273,7 +273,7 @@ B) No. Skip all SECURITY rules (suitable for PoCs, prototypes and experimental p
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B, The app runs locally for one user, so production rules like logins and access control don't apply. For a local app the main risks are other people reaching it over the network and data leaving the laptop, and our technical document's security rules already address both.
 
 ## Question 19: Property-Based Testing Extension
 
@@ -287,7 +287,7 @@ C) No. Skip all PBT rules (suitable for simple CRUD applications, UI-only projec
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B, Quote verification, chunking, and coverage counts are implemented with pure functions where property tests are helpful for catching edge cases. The rest of the app depends on the model's output, which our fake-model unit tests and evaluation script will cover instead. 
 
 ## Question 20: Resiliency Extensions
 
@@ -303,4 +303,4 @@ B) No. Skip the resiliency baseline (suitable for PoCs, prototypes and experimen
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B, The resiliency baseline is mostly aimed at cloud systems/deployed applications, while our app runs locally. The failures that matter for us, like bad model output and running out of memory, are already handled by our answers to Q11 and Q13.

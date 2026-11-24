@@ -8,17 +8,17 @@ All application code is written in Python 3.12. Our package manager is uv, and t
 - **Package manager:** Dependencies will be declared in `pyproject.toml` and pinned in `uv.lock`, and both files will be committed to the GitHub repo. Setup is `uv sync`, commands run through `uv run`
 - **Framework:** One process serves the API endpoints and the local web page. The page uses Jinja2, which lets us write the HTML layout for a paper card once and reuse it for every paper in the tracker, inserting each paper's own title, authors and quotes
 
-We call the LLM model with the `openai` Python library, pointed at Ollama, and read PDF text with `pypdf`.
+We call the LLM model with the `openai` Python library, pointed at Ollama, and read PDF text with `pypdf`. Passage embeddings are also made through Ollama, using `nomic-embed-text`, and then stored in Chroma.
 
 ## 2. Cloud provider and deployment model
 
 There is no cloud provider: the app is deployed locally on each user's laptop, and no request leaves the machine.
 
 - **Research Tracker web app (FastAPI + Uvicorn):** runs on the user's laptop at `127.0.0.1:8000` (Uvicorn's default port)
-- **Qwen3 8B via Ollama:** runs on the user's laptop, reached at `http://localhost:11434/v1` (OpenAI-compatible API)
+- **Qwen3 8B and `nomic-embed-text` via Ollama:** both run on the user's laptop, reached at `http://localhost:11434/v1` (OpenAI-compatible API). Qwen3 writes the cards and classifications, and `nomic-embed-text` turns passages into embeddings for search
 - **Saved data:** the SQLite database (paper cards, sections, quotes), the Chroma vector database (passage embeddings), uploaded PDFs and exported `tracker.md` live on local disk in the project's `data/` folder.
 
-To install, a user clones the repository, run: `ollama pull qwen3:8b` and `uv sync`, then starts the app with `uv run uvicorn research_tracker.main:app`. There is no hosting, no accounts and no build pipeline.
+To install, a user clones the repository, runs `ollama pull qwen3:8b`, `ollama pull nomic-embed-text` and `uv sync`, then starts the app with `uv run uvicorn research_tracker.main:app`. There is no hosting, no accounts and no build pipeline.
 
 ## 3. Test framework
 
