@@ -27,8 +27,7 @@ C) A paper can fully belong to several sections and is counted in each one
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ## Question 2
 
 Where is the line between "Redundant with [paper]" and "Adds to [section]"? (Vision open question)
@@ -41,8 +40,7 @@ C) Let the model decide using a written rubric of examples from our labeled test
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ## Question 3
 
 How much freedom should the agent have when comparing a new paper with the tracker?
@@ -55,8 +53,7 @@ C) Hybrid: a fixed pipeline for card writing, then a capped tool-calling loop on
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: C
 ## Question 4
 
 Section names and summaries are written by the model. When a new paper changes a section, what may be rewritten?
@@ -69,8 +66,7 @@ C) Only the overview is rewritten. Section summaries are appended to, never rewr
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ---
 
 ## Part B: Citations and display
@@ -87,8 +83,7 @@ C) Ask the model once to give a replacement quote. If that also fails, show the 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ## Question 6
 
 How should citations appear in the tracker and the inspection view? (Vision open question)
@@ -101,8 +96,7 @@ C) Inline tags in the web page, and numbered footnotes in the exported Markdown
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: B
 ## Question 7
 
 How should the inspection view let users see source evidence?
@@ -115,8 +109,7 @@ C) Show the full extracted text of the cited page with the passage highlighted
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ---
 
 ## Part C: Trackers, papers and export
@@ -131,8 +124,7 @@ B) Several trackers, each with its own question, chosen from a list on the home 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ## Question 9
 
 Can a user remove a paper from a tracker in the MVP?
@@ -143,8 +135,7 @@ B) Yes. Removing a paper deletes its card, passages and embeddings, and the affe
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ## Question 10
 
 When is `tracker.md` written?
@@ -155,8 +146,7 @@ B) Automatically after every successful paper upload, and also on demand
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ---
 
 ## Part D: Processing, failures and the model
@@ -171,8 +161,7 @@ B) The upload returns at once, processing runs in the background, and the page s
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ## Question 12
 
 What processing time per paper (20 pages or fewer) is acceptable for the MVP on a typical team laptop?
@@ -187,8 +176,7 @@ D) No fixed target. Measure it and report it
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: D
 ## Question 13
 
 If the model returns badly formatted output or processing fails partway through, what should happen?
@@ -199,8 +187,7 @@ B) Same retries, but save whatever finished (for example the card without a clas
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ## Question 14
 
 What is the fallback if Qwen3 8B is too slow or its context is too short on a team laptop? (Vision open question)
@@ -213,8 +200,7 @@ C) Both: settings in `.env`, plus smaller chunks and batches by default
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: C
 ## Question 15
 
 Which model should create the passage embeddings stored in Chroma?
@@ -227,8 +213,7 @@ C) No vector embeddings for the MVP. Use keyword search (SQLite full-text search
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ## Question 16
 
 Qwen3 has a "thinking" mode that writes out its reasoning before answering. It is often more accurate but slower. Which should the app use?
@@ -241,8 +226,7 @@ C) Make it a setting and decide after measuring on our test set
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: C
 ---
 
 ## Part E: Evaluation
@@ -257,8 +241,7 @@ B) No. The team checks the metrics by hand using the web interface
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: A
 ---
 
 ## Part F: AI-DLC extensions
@@ -273,8 +256,7 @@ B) No. Skip all SECURITY rules (suitable for PoCs, prototypes and experimental p
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: B
 ## Question 19: Property-Based Testing Extension
 
 Should property-based testing (PBT) rules be enforced for this project? (Examples here: quote normalization and verification, chunking with page references, and coverage counts.)
@@ -287,8 +269,7 @@ C) No. Skip all PBT rules (suitable for simple CRUD applications, UI-only projec
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
-
+[Answer]: B
 ## Question 20: Resiliency Extensions
 
 Should the resiliency baseline be applied to this project?
@@ -303,4 +284,7 @@ B) No. Skip the resiliency baseline (suitable for PoCs, prototypes and experimen
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B
+## Decision record
+
+Answers recorded from Nicole’s acceptance of the recommended choices in chat, followed by her instruction to continue. They are not individually authored questionnaire responses. Question 15 uses the documented Chroma approach with local `nomic-embed-text` embeddings. Question 19 selects partial property-based testing. No approval of future artifacts is implied.

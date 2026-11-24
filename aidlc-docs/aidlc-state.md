@@ -5,7 +5,7 @@
 - **Project Name**: Research Tracker
 - **Project Type**: Greenfield
 - **Start Date**: 2026-11-24T01:16:21Z
-- **Current Stage**: INCEPTION - Requirements Analysis (awaiting answers to clarifying questions)
+- **Current Stage**: INCEPTION - Requirements Analysis (requirements generated, awaiting approval)
 - **AI-DLC Version**: v1.0.1
 - **MVP Deadline**: 2026-12-16
 
@@ -22,7 +22,7 @@
 - **Build System**: None yet (planned: uv with `pyproject.toml` / `uv.lock`)
 - **Project Structure**: Empty
 - **Reverse Engineering Needed**: No
-- **Workspace Root**: /Users/mokshamac/College/Sophomore/INFO5940FinalProject
+- **Workspace Root**: repository root (portable path)
 - **Rule Details Directory**: `aws-aidlc-rule-details/` (repository root)
 
 ## Code Location Rules
@@ -35,9 +35,9 @@
 
 | Extension | Enabled | Decided At |
 |---|---|---|
-| Security Baseline | Pending | Requirements Analysis |
-| Property-Based Testing | Pending | Requirements Analysis |
-| Resiliency Baseline | Pending | Requirements Analysis |
+| Security Baseline | No | Requirements Analysis, accepted choices in chat |
+| Property-Based Testing | Partial | Requirements Analysis, accepted choices in chat |
+| Resiliency Baseline | No | Requirements Analysis, accepted choices in chat |
 
 ## Stage Progress
 
@@ -45,7 +45,7 @@
 
 - [x] Workspace Detection
 - [-] Reverse Engineering (SKIPPED - greenfield)
-- [ ] Requirements Analysis (IN PROGRESS - questions issued)
+- [ ] Requirements Analysis (document generated, approval pending)
 - [ ] User Stories
 - [ ] Workflow Planning
 - [ ] Application Design
@@ -59,3 +59,7 @@
 ### OPERATIONS PHASE
 
 - [ ] Operations (placeholder)
+
+## Current session handoff
+
+Working copy prepared in the current Codex workspace because the Desktop checkout is read-only. The original checkout is unchanged. Four listed team members retained. Stage review gates remain active. Rule bundle provenance and agent-specific setup are pending verification.
