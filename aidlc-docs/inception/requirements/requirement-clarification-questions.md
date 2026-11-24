@@ -20,7 +20,7 @@ B) Yes. When a new section is created, the model may add it as a secondary link 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Your Q1 answer kept secondary sections light: display-only and limited to sections that already exist. Adding links to earlier papers later would mean extra model calls over old cards on every new section, which goes against "earlier cards are preserved." A paper uploaded before a section existed just won't link to it.
 
 ---
 
@@ -40,7 +40,7 @@ C) Save the card only if at least one quote is verified. Otherwise treat it as a
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Q5 makes a failed quote a warning, instead of a failure. Q13 is about steps that break (invalid output, crashes), not about quotes. Throwing away a whole card would lose the summary and classification, and the user can't fix that by re-uploading because duplicate detection blocks it. Showing a card-level note like "No quotes could be verified" so the problem is obvious would be good.
 
 ---
 
@@ -58,7 +58,7 @@ B) The paper's extracted title, falling back to the original filename if the tit
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B. Downloaded PDFs might have meaningless file names, which mean nothing in a citation or the Markdown export. The title is pulled from the first page, so it's usually right, but the filename fallback can happen to papers where it isn't. Either way the original filename has to be stored in the database, while the file on disk stays named by its hash.
 
 ---
 
@@ -76,7 +76,7 @@ B) Treat reaching the cap as a failed step right away, and retry the whole compa
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. By the time the cap is hit, the model has already gathered its evidence. One cheap call with tools off usually gets a label out of it. Option B would re-run 6–8 calls, which is slow on our laptops and likely to stall the same way again.
 
 ---
 
@@ -94,7 +94,7 @@ B) The new upload waits in a queue and is processed after the current one, one a
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. The vision says papers are uploaded one at a time, and the limit is 10 papers per tracker, so waiting is a minor inconvenience. A queue adds state to manage: queued papers would also be lost on shutdown under Q13, and you'd need queue status in the UI. A queue could come later if users ask for it.
 
 ---
 
@@ -112,7 +112,7 @@ B) In a named folder the team chooses (for example `eval-data/`), kept after the
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B. Keeping the results lets you open them in the web page and see why a paper got the wrong label, which matters when comparing settings like thinking mode (Q16/Q17). I'd add that the script clears eval-data/ at the start of each run, so results from different settings don't mix.
 
 ### Clarification Question 7
 
@@ -124,7 +124,7 @@ B) Only the evaluation script measures and reports timing. Normal uploads do not
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Logging each step's time is a few lines of code. The steps already match the progress stages from Q11, and the logs also help find which step is slow on a teammate's laptop during normal use. The eval script then only summarizes the logs, so nothing is measured twice.
 
 ---
 
@@ -144,4 +144,4 @@ C) Call Ollama's native API, which accepts context size per request. This needs 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B. The document is right that Ollama's OpenAI-compatible API has no per-request setting for context size, and Ollama's docs recommend a Modelfile or the server environment variable for this. A Modelfile in the repository works the same on every teammate's laptop. 
