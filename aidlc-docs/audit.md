@@ -245,3 +245,75 @@ One thing im thinking about is to skip the loop and make one model call that dec
 **Context**: INCEPTION - Application Design, awaiting answers
 
 ---
+
+## Application Design - Answers Received
+
+**Timestamp**: 2026-11-24T07:32:38Z
+**User Input**: "i answered the design questions, can you review"
+**AI Response**: "Read answers: Q1 A (by component; Processor is the only orchestrator), Q2 B (dedicated worker thread), Q3 A (status polling), Q4 A (in-memory work, SQLite commit as source of truth, start-up cleanup of uncommitted files and Chroma entries), Q5 A plus per-step answer lists for the fake, Q6 A (Pydantic plus schema; check thinking-mode interaction in Functional Design), Q7 A (native tool calling), Q8 A (Jinja2 and details element, polling script only), Q9 A (evaluation calls the Processor directly, skipping the Job Runner), Q10 A (pydantic-settings), Q11 A plus refuse-to-start message on schema version mismatch. No contradictions. One ambiguity: whether an invalid turn inside the comparison loop re-asks that turn or fails the whole step (Q7 vs FR-6.4/FR-11.1). Added Part B2 follow-up question to application-design-plan.md. Noted design consequences to carry into the documents: the processing record is saved outside the paper's transaction; tracker.md is regenerated at start-up; timing is recorded by the Processor so the evaluation gets it; the fake model raises an error if a step's answer list runs out."
+**Context**: INCEPTION - Application Design, follow-up question issued
+
+---
+
+## Application Design - Follow-up Answer Received
+
+**Timestamp**: 2026-11-24T07:35:52Z
+**User Input**: "i answered the follow-up, can you check it"
+**AI Response**: "Read follow-up 1 answer: C (re-ask only the invalid turn up to 2 times, re-asks count toward the cap; still invalid ends the loop and goes to the final tool-free call). Interpreted the cap as a cap on model calls in the loop, following the user's reasoning that time is spent per model call; updated FR-6.3 in requirements.md accordingly. Flagged that FR-11.1 still retries the whole comparison step up to 2 more times if the final call is invalid, so the worst case is 3 x (cap + 1) model calls rather than cap + 1; proposed that step retries repeat only the final call using the evidence already gathered (worst case cap + 3). Awaiting user decision before generating design documents."
+**Context**: INCEPTION - Application Design, answers checked, one decision pending
+
+---
+
+## Application Design - Decision (Comparison Retries)
+
+**Timestamp**: 2026-11-24T07:37:17Z
+**User Input**: "yes retry only the final call, then write the design docs"
+**AI Response**: "Updated requirements.md FR-6.4 (only the final tool-free call is retried, up to 2 more times with the same evidence; loop never rerun; worst case cap + 3 model calls) and FR-11.1 (comparison step exception; a failed loop turn, including model errors and timeouts, is re-asked under FR-6.3). Proceeding to generate application design documents per Part C of application-design-plan.md."
+**Context**: INCEPTION - Application Design, generation started
+
+---
+
+## Application Design - Documents Generated
+
+**Timestamp**: 2026-11-24T07:40:37Z
+**User Input**: (none - executing approved plan)
+**AI Response**: "Generated inception/application-design/components.md (16 components, package layout, shared data types, story-to-component check), component-methods.md (signatures, tool contract, HTTP routes), services.md (Paper Processor flow and retry rules, Job Runner submit and start-up recovery, Evaluation flow), component-dependency.md (dependency matrix verified loop-free by script across 6 layers, upload data flow as Mermaid plus text alternative, shared-constraint enforcement map, pure functions for PBT), and application-design.md (key decisions, items left for Functional Design, and the four documents combined). Marked Part C checklist complete. Extension compliance: PBT Partial - pure functions identified for PBT-02/03 (N/A to enforce until code exists); Security and Resiliency disabled. Approval prompt presented."
+**Context**: INCEPTION - Application Design, awaiting approval
+
+---
+
+## Application Design - Question (Chroma Model Download)
+
+**Timestamp**: 2026-11-24T07:42:02Z
+**User Input**: "could chroma download a model from the internet"
+**AI Response**: "Explained yes: Chroma's default embedding function (an ONNX all-MiniLM-L6-v2 model) is downloaded on first use if a collection is given raw text, or queried with text, without its own embedding function. The current design always computes embeddings with nomic-embed-text through Ollama, but does not explicitly prevent Chroma's default from being used. Proposed: give each collection an explicit embedding function that refuses to run, always pass precomputed embeddings and query embeddings, never pass raw text, and add a test that checks it; update Storage in components.md and the C-2 row in component-dependency.md. Awaiting user decision; application design not yet approved."
+**Context**: INCEPTION - Application Design, question before approval
+
+---
+
+## Application Design - Change Request (Chroma Never Embeds)
+
+**Timestamp**: 2026-11-24T07:42:37Z
+**User Input**: "yes make those changes"
+**AI Response**: "Updated components.md Storage (passages.py): both collections use an explicit embedding function that raises if called; only precomputed embeddings and query embeddings are passed; raw text stored as data only; a test checks this; behavior confirmed against the installed Chroma version in Functional Design. Updated the C-2 row in component-dependency.md to include Storage and the optional network-blocking test. Regenerated application-design.md from the four source files. Application design still awaiting approval."
+**Context**: INCEPTION - Application Design, change applied
+
+---
+
+## Application Design - Approval
+
+**Timestamp**: 2026-11-24T07:43:35Z
+**User Input**: "approve the design and move to units generation"
+**AI Response**: "Recorded approval of the application design. Marked Application Design complete. Proceeding to Units Generation, Part 1 Planning."
+**Context**: INCEPTION - Application Design approved
+
+---
+
+## Units Generation - Part 1 Planning
+
+**Timestamp**: 2026-11-24T07:43:35Z
+**User Input**: (none - continuing after approval)
+**AI Response**: "Created inception/plans/unit-of-work-plan.md with candidate decompositions, 8 planning questions (unit grouping, placement of the Paper Processor and Job Runner, Storage ownership, integration and stubs, how AI-DLC runs across four people, owners, code and test layout, build order), and a generation checklist. Awaiting answers."
+**Context**: INCEPTION - Units Generation, Part 1 Planning (awaiting answers)
+
+---

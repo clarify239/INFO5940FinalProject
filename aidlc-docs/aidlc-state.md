@@ -5,7 +5,7 @@
 - **Project Name**: Research Tracker
 - **Project Type**: Greenfield
 - **Start Date**: 2026-11-24T01:16:21Z
-- **Current Stage**: INCEPTION - Application Design (awaiting answers in application-design-plan.md)
+- **Current Stage**: INCEPTION - Units Generation, Part 1 Planning (awaiting answers in unit-of-work-plan.md)
 - **AI-DLC Version**: v1.0.1
 - **MVP Deadline**: 2026-12-16
 
@@ -56,8 +56,8 @@ Note: Security Baseline is off, but the security rules in `TechnicalDocument.md`
 - [x] Requirements Analysis (approved)
 - [x] User Stories (approved)
 - [x] Workflow Planning (approved)
-- [ ] Application Design - EXECUTE (IN PROGRESS - plan and questions issued)
-- [ ] Units Generation - EXECUTE
+- [x] Application Design - EXECUTE (approved)
+- [ ] Units Generation - EXECUTE (IN PROGRESS - Part 1 Planning)
 
 ### CONSTRUCTION PHASE
 
@@ -75,6 +75,6 @@ Note: Security Baseline is off, but the security rules in `TechnicalDocument.md`
 ## Current Status
 
 - **Lifecycle Phase**: INCEPTION
-- **Current Stage**: Application Design
-- **Next Stage**: Units Generation
-- **Status**: Awaiting answers to application design questions
+- **Current Stage**: Units Generation
+- **Next Stage**: CONSTRUCTION PHASE (per-unit Functional Design)
+- **Status**: Awaiting answers to unit planning questions

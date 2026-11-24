@@ -45,7 +45,7 @@ B) By layer: `routes/`, `services/`, `domain/`, `storage/`, with each component 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Grouping by component lines up with the README's ownership areas, so each owner mostly works in their own files. Grouping by layer would spread every component across four folders, with four people editing the same files and more merge conflicts. Making the Paper Processor the only place that chains steps together also keeps the dependency diagram simple.
 
 ## Question 2: Background processing
 
@@ -59,7 +59,7 @@ C) An `asyncio` task with async model calls. Needs the async `openai` client and
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B. The "one paper at a time" rule (FR-2.5) needs a single place that knows whether a paper is processing, and BackgroundTasks doesn't provide one, so we'd have to build that lock anyway. A dedicated worker thread is that place, and it makes shutdown handling explicit. Option C would mean rewriting the SQLite and Chroma code to be async with no real gain, because the model calls run one after another regardless.
 
 ## Question 3: Progress on the page
 
@@ -73,7 +73,7 @@ C) No JavaScript: the page reloads itself every few seconds with an HTML refresh
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Polling a status endpoint also closes the reload gap from earlier: the status lives on the server, so a refreshed page or a new tab shows the current step right away. Server-sent events need reconnect handling for little benefit when a step lasts minutes. Option C reloads the whole page every few seconds, which collapses any citation the student has open, and Q11 says they can use the page while a paper processes.
 
 ## Question 4: Saving all-or-nothing across three stores
 
@@ -85,7 +85,7 @@ B) **Write as you go with a "pending" status.** Each step saves its results righ
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. SQLite transactions are atomic, so a single commit at the end decides whether the paper exists, even after a crash. A leftover file or Chroma entry is harmless, because reads are filtered to committed papers and cleanup removes it at start-up. With option B, every query has to remember to skip pending data, and one missed filter can leak a half-saved paper into counts or tool results.
 
 ## Question 5: Model client and fake model
 
@@ -99,7 +99,7 @@ C) Patch the `openai` library in tests instead of using an interface
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Choosing answers by step name keeps tests stable when prompt wording changes, which option B can't do. Option C would tie the tests to the openai library's internals. One addition: for each step, the fake should return answers from a list in order. That lets a test script a multi-turn comparison loop, or one bad answer followed by a good one to test retries.
 
 ## Question 6: Structured model output
 
@@ -111,7 +111,7 @@ B) Ask for JSON in the prompt only, and validate with Pydantic
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Asking Ollama to follow the schema reduces formatting failures before they happen, and validating with Pydantic catches whatever still slips through. Pydantic already comes with FastAPI. Prompt-only JSON (option B) would fail more often on an 8B model, and every failure costs a retry on a slow laptop. Functional Design should also check how Qwen3's thinking text interacts with the schema when thinking mode is on.
 
 ## Question 7: Tool calling in the comparison loop
 
@@ -123,7 +123,7 @@ B) Our own text protocol: the model replies with a JSON "action" (tool name and 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Ollama supports native tool calling for Qwen3, so we don't need to write our own protocol and parser. If the model puts a tool call in its message text instead of using the proper field, that counts as invalid output and gets retried, and the final call with tools turned off (FR-6.4) is still the fallback.
 
 ## Question 8: Web page technology
 
@@ -135,7 +135,7 @@ B) Jinja2 pages plus htmx (one small JavaScript file kept in the repository) for
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. The HTML <details> element gives expandable citations (FR-12.2) with no JavaScript. The only script needed is the small polling script from Q3. htmx would add a dependency to save a few lines of code.
 
 ## Question 9: How the evaluation runs the pipeline
 
@@ -147,7 +147,7 @@ B) Over HTTP: it starts the web server and uploads each paper through the real e
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. It runs the same Paper Processor, so the evaluation tests the real pipeline without starting a server or waiting on status checks. The web layer is already covered by TestClient tests. The evaluation should call the Processor directly and skip the Job Runner, since it processes papers in order anyway.
 
 ## Question 10: Loading settings
 
@@ -161,7 +161,7 @@ C) Read environment variables with `os.environ` only, with no `.env` loader
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. pydantic-settings gives US-02's "name the missing or invalid setting at start-up" almost for free. It's maintained by the Pydantic team and isn't on the prohibited list.
 
 ## Question 11: Database schema setup
 
@@ -173,7 +173,27 @@ B) Numbered migration scripts that upgrade an existing database in place, so tes
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A. Migrations are extra work with no payoff when nobody has real data to keep. One addition: if the saved schema version doesn't match, the app should refuse to start with a clear message, such as "Data folder uses an older format; delete data/ to start over," instead of crashing. That keeps to C-6.
+
+---
+
+## Part B2: Follow-up Question
+
+## Follow-up 1: Retrying one bad turn inside the comparison loop (Q7 + FR-6.4 + FR-11.1)
+
+Q7 says a tool call written in the message text, instead of the proper field, is invalid output and "gets retried." FR-11.1 retries a failing *step* up to 2 more times, and the comparison loop is one step. It is unclear whether one bad turn re-asks just that turn or restarts the whole loop. Restarting the whole loop repeats 6–8 slow calls, which is what CQ4 tried to avoid.
+
+What should happen when one turn of the comparison loop is invalid (for example a malformed tool call or a call to an unknown tool)?
+
+A) Re-ask only that turn, with a short message saying what was wrong, up to 2 times. These re-asks do not count toward the tool-call cap. If the turn is still invalid, stop the loop and go straight to the final tool-free call (FR-6.4). Only if that final call is invalid does the whole comparison step fail and get retried under FR-11.1
+
+B) Any invalid turn fails the whole comparison step, which is retried from the beginning under FR-11.1
+
+C) Same as A, but the re-asks do count toward the tool-call cap
+
+X) Other (please describe after [Answer]: tag below)
+
+[Answer]: C. The cap is our only promise about time. On a slow laptop, a re-ask costs as much as any other model call. If re-asks count toward the cap, the worst case stays fixed: the cap plus one final call with tools off.
 
 ---
 
@@ -181,28 +201,28 @@ X) Other (please describe after [Answer]: tag below)
 
 This runs after the answers are complete and checked.
 
-- [ ] **1. Prepare**
-  - [ ] 1.1 Apply the Part B answers to the component list in Part A
-  - [ ] 1.2 Re-check every story (US-01 to US-29) against the components, so each story has an owning component
-- [ ] **2. `components.md`**
-  - [ ] 2.1 For each component: purpose, responsibilities, interfaces, stories served
-  - [ ] 2.2 State the shared data types that cross components (for example Page, Chunk, Card, Quote, Label, Section, PaperRecord, ProgressState)
-- [ ] **3. `component-methods.md`**
-  - [ ] 3.1 Method signatures with input and output types for each component
-  - [ ] 3.2 A one-line purpose for each method; business rules left to Functional Design
-  - [ ] 3.3 The tool interface the model sees (names, arguments, results)
-- [ ] **4. `services.md`**
-  - [ ] 4.1 The Paper Processor flow step by step: steps, retries, progress, timing, commit
-  - [ ] 4.2 The Job Runner: one-at-a-time rule, start-up cleanup, interrupted-paper notice
-  - [ ] 4.3 The Evaluation flow
-- [ ] **5. `component-dependency.md`**
-  - [ ] 5.1 Dependency matrix (who calls whom), with no loops
-  - [ ] 5.2 Data flow for an upload, from request to `tracker.md`, as a diagram with a text alternative
-  - [ ] 5.3 Where each shared constraint (C-1 to C-7) is enforced
-- [ ] **6. `application-design.md`**
-  - [ ] 6.1 Combine the four documents into one overview
-- [ ] **7. Check**
-  - [ ] 7.1 Every story and every FR has an owning component
-  - [ ] 7.2 Interfaces are consistent across documents
-  - [ ] 7.3 Note the pure functions that need property-based tests (PBT Partial)
-  - [ ] 7.4 Update `aidlc-state.md` and `audit.md`, and present for approval
+- [x] **1. Prepare**
+  - [x] 1.1 Apply the Part B answers to the component list in Part A
+  - [x] 1.2 Re-check every story (US-01 to US-29) against the components, so each story has an owning component
+- [x] **2. `components.md`**
+  - [x] 2.1 For each component: purpose, responsibilities, interfaces, stories served
+  - [x] 2.2 State the shared data types that cross components (for example Page, Chunk, Card, Quote, Label, Section, PaperRecord, ProgressState)
+- [x] **3. `component-methods.md`**
+  - [x] 3.1 Method signatures with input and output types for each component
+  - [x] 3.2 A one-line purpose for each method; business rules left to Functional Design
+  - [x] 3.3 The tool interface the model sees (names, arguments, results)
+- [x] **4. `services.md`**
+  - [x] 4.1 The Paper Processor flow step by step: steps, retries, progress, timing, commit
+  - [x] 4.2 The Job Runner: one-at-a-time rule, start-up cleanup, interrupted-paper notice
+  - [x] 4.3 The Evaluation flow
+- [x] **5. `component-dependency.md`**
+  - [x] 5.1 Dependency matrix (who calls whom), with no loops
+  - [x] 5.2 Data flow for an upload, from request to `tracker.md`, as a diagram with a text alternative
+  - [x] 5.3 Where each shared constraint (C-1 to C-7) is enforced
+- [x] **6. `application-design.md`**
+  - [x] 6.1 Combine the four documents into one overview
+- [x] **7. Check**
+  - [x] 7.1 Every story and every FR has an owning component
+  - [x] 7.2 Interfaces are consistent across documents
+  - [x] 7.3 Note the pure functions that need property-based tests (PBT Partial)
+  - [x] 7.4 Update `aidlc-state.md` and `audit.md`, and present for approval
