@@ -317,3 +317,49 @@ One thing im thinking about is to skip the loop and make one model call that dec
 **Context**: INCEPTION - Units Generation, Part 1 Planning (awaiting answers)
 
 ---
+
+## Units Generation - Planning Answers Received
+
+**Timestamp**: 2026-11-24T07:50:55Z
+**User Input**: "i answered the unit planning questions, can you review"
+**AI Response**: "Read answers: Q1 A (Foundation + five README areas, Evaluation in U4), Q2 B (Processor and Job Runner skeleton in U0; needs a named owner after Foundation), Q3 A (U1 owns passages.py, U5 owns db.py, files.py, schema.sql and TrackerStore; only TrackerStore calls passages.py), Q4 A plus shared contract tests run against both FakeTrackerStore and the real TrackerStore, fake kept minimal, Q5 B (per-unit audit files; main audit for cross-unit decisions), Q6 'B if decided, otherwise A' (no names given, so treated as A; advice on assignments recorded), Q7 B (package at repository root, per-unit test folders and shared fixtures), Q8 A with the fix that integration is continuous via the skeleton and a request for real dates. Found 2 open items: which unit owns the Processor and Job Runner after Foundation (Q2 vs Q6), and Foundation dates in Thanksgiving week (Q8). Added Part B2 with 2 follow-up questions. Noted for Code Generation: with a root-level package, pytest needs the repository root on its import path (pytest pythonpath setting or an installable project)."
+**Context**: INCEPTION - Units Generation, Part 1 Planning (follow-up questions)
+
+---
+
+## Units Generation - Follow-up Answers Received
+
+**Timestamp**: 2026-11-24T07:52:42Z
+**User Input**: "i answered the follow-ups, can you check them"
+**AI Response**: "Read follow-up 1: A (Processor and Job Runner move to U4 after Foundation; U5 owner reviews the commit-failure part of U4's Functional Design). Follow-up 2: 'C if one or two people volunteer, otherwise B' - a clear decision rule whose outcome depends on the team, so both dated tracks were recorded with a decision deadline of Nov 25. No remaining ambiguities. Added Part B3 Decisions Applied to unit-of-work-plan.md. AI Prompt: 'Unit of work plan complete. Review the plan in aidlc-docs/inception/plans/unit-of-work-plan.md. Ready to proceed to generation?'"
+**Context**: INCEPTION - Units Generation, Part 1 Planning (awaiting plan approval)
+
+---
+
+## Units Generation - Plan Approval
+
+**Timestamp**: 2026-11-24T07:55:26Z
+**AI Prompt**: "Unit of work plan complete. Review the plan in aidlc-docs/inception/plans/unit-of-work-plan.md. Ready to proceed to generation?"
+**User Response**: "approve the plan and generate the units"
+**Status**: Approved
+**Context**: INCEPTION - Units Generation, Part 1 Planning complete; starting Part 2 Generation
+
+---
+
+## Units Generation - Part 2 Generation Complete
+
+**Timestamp**: 2026-11-24T07:56:39Z
+**User Input**: (none - executing approved plan)
+**AI Response**: "Generated inception/application-design/unit-of-work.md (6 units U0-U5 with files, responsibilities, provides/uses, Functional Design open items, handover table for U0, owner guidance, code organization, integration approach, AI-DLC across owners), unit-of-work-dependency.md (unit matrix with interface vs code dependencies, explanation of the two mutual unit pairs U1-U5 and U4-U5 that cross only frozen interfaces or pure functions while the component graph stays loop-free, 19 contracts with owners, dated build order for both tracks), and unit-of-work-story-map.md (29 stories each with one primary unit, verified by script; Demo path tags verified against stories.md; shared constraints and Team practice items assigned). Assigned Model Client maintenance after the U0 freeze to U2 and Settings/project setup to U5 (not specified in the plan; flagged for review). Added per-unit progress lines to aidlc-state.md. Marked Part C checklist complete."
+**Context**: INCEPTION - Units Generation, awaiting approval
+
+---
+
+## Units Generation - Approval (Paused Before Construction)
+
+**Timestamp**: 2026-11-24T07:58:28Z
+**User Input**: "units looks good don't move to constuction though"
+**AI Response**: "Recorded approval of the units. Marked Units Generation and the INCEPTION phase complete. Did not start CONSTRUCTION; recorded the workflow as paused at the user's request, with next stage U0 Foundation Functional Design and open team actions (owners and reviewers, track choice by Nov 25, test set owner)."
+**Context**: INCEPTION complete; CONSTRUCTION not started (paused)
+
+---

@@ -5,7 +5,7 @@
 - **Project Name**: Research Tracker
 - **Project Type**: Greenfield
 - **Start Date**: 2026-11-24T01:16:21Z
-- **Current Stage**: INCEPTION - Units Generation, Part 1 Planning (awaiting answers in unit-of-work-plan.md)
+- **Current Stage**: INCEPTION complete - paused before CONSTRUCTION (at user's request)
 - **AI-DLC Version**: v1.0.1
 - **MVP Deadline**: 2026-12-16
 
@@ -57,7 +57,7 @@ Note: Security Baseline is off, but the security rules in `TechnicalDocument.md`
 - [x] User Stories (approved)
 - [x] Workflow Planning (approved)
 - [x] Application Design - EXECUTE (approved)
-- [ ] Units Generation - EXECUTE (IN PROGRESS - Part 1 Planning)
+- [x] Units Generation - EXECUTE (approved)
 
 ### CONSTRUCTION PHASE
 
@@ -68,13 +68,22 @@ Note: Security Baseline is off, but the security rules in `TechnicalDocument.md`
 - [ ] Code Generation - EXECUTE (per unit)
 - [ ] Build and Test - EXECUTE
 
+### Per-Unit Progress (one line per unit; each owner edits only their line)
+
+- [ ] U0 Foundation: Functional Design [ ] · Code Generation [ ] · Owner: to be assigned
+- [ ] U1 PDF and Retrieval: Functional Design [ ] · Code Generation [ ] · Owner: to be assigned
+- [ ] U2 Paper Cards: Functional Design [ ] · Code Generation [ ] · Owner: to be assigned
+- [ ] U3 Comparison: Functional Design [ ] · Code Generation [ ] · Owner: to be assigned
+- [ ] U4 Summaries, Coverage, Export, Evaluation and Integration: Functional Design [ ] · Code Generation [ ] · Owner: to be assigned
+- [ ] U5 Interface and Persistence: Functional Design [ ] · Code Generation [ ] · Owner: to be assigned
+
 ### OPERATIONS PHASE
 
 - [ ] Operations - PLACEHOLDER
 
 ## Current Status
 
-- **Lifecycle Phase**: INCEPTION
-- **Current Stage**: Units Generation
-- **Next Stage**: CONSTRUCTION PHASE (per-unit Functional Design)
-- **Status**: Awaiting answers to unit planning questions
+- **Lifecycle Phase**: INCEPTION (complete)
+- **Current Stage**: Paused before CONSTRUCTION
+- **Next Stage**: CONSTRUCTION - U0 Foundation Functional Design (when the team resumes)
+- **Status**: Paused at user's request. Before resuming: assign unit owners and reviewers, choose Track C or B by Nov 25, assign the labeled test set owner
