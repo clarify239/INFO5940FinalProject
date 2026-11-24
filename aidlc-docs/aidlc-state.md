@@ -5,7 +5,7 @@
 - **Project Name**: Research Tracker
 - **Project Type**: Greenfield
 - **Start Date**: 2026-11-24T01:16:21Z
-- **Current Stage**: INCEPTION - User Stories, Part 1 Planning (awaiting answers in story-generation-plan.md)
+- **Current Stage**: INCEPTION - Application Design (awaiting answers in application-design-plan.md)
 - **AI-DLC Version**: v1.0.1
 - **MVP Deadline**: 2026-12-16
 
@@ -41,6 +41,12 @@
 
 Note: Security Baseline is off, but the security rules in `TechnicalDocument.md` Section 5 remain project requirements.
 
+## Execution Plan Summary
+
+- **Total Stages**: 13 (plus Operations placeholder)
+- **Stages to Execute**: Workspace Detection, Requirements Analysis, User Stories, Workflow Planning, Application Design, Units Generation, Functional Design (per unit), Code Generation (per unit), Build and Test
+- **Stages to Skip**: Reverse Engineering (greenfield); NFR Requirements (tech stack and NFRs already fixed by TechnicalDocument.md and requirements.md); NFR Design (NFR Requirements skipped); Infrastructure Design (local-only, no cloud)
+
 ## Stage Progress
 
 ### INCEPTION PHASE
@@ -48,16 +54,27 @@ Note: Security Baseline is off, but the security rules in `TechnicalDocument.md`
 - [x] Workspace Detection
 - [-] Reverse Engineering (SKIPPED - greenfield)
 - [x] Requirements Analysis (approved)
-- [ ] User Stories (IN PROGRESS - Part 1 Planning)
-- [ ] Workflow Planning
-- [ ] Application Design
-- [ ] Units Generation
+- [x] User Stories (approved)
+- [x] Workflow Planning (approved)
+- [ ] Application Design - EXECUTE (IN PROGRESS - plan and questions issued)
+- [ ] Units Generation - EXECUTE
 
 ### CONSTRUCTION PHASE
 
-- [ ] Per-unit design and code generation (to be planned)
-- [ ] Build and Test
+- [ ] Functional Design - EXECUTE (per unit)
+- [-] NFR Requirements - SKIP
+- [-] NFR Design - SKIP
+- [-] Infrastructure Design - SKIP
+- [ ] Code Generation - EXECUTE (per unit)
+- [ ] Build and Test - EXECUTE
 
 ### OPERATIONS PHASE
 
-- [ ] Operations (placeholder)
+- [ ] Operations - PLACEHOLDER
+
+## Current Status
+
+- **Lifecycle Phase**: INCEPTION
+- **Current Stage**: Application Design
+- **Next Stage**: Units Generation
+- **Status**: Awaiting answers to application design questions

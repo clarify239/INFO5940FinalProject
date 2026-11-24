@@ -72,6 +72,8 @@ Research Tracker is a locally run web app for one student working on one researc
   - PDFs over 20 pages [V §2, T §5]
   - PDFs with too little extractable text (for example scanned or image-only PDFs) [V §2]
   - uploads when the tracker already holds 10 papers [V §2]
+
+  All of these checks, including text extraction with `pypdf`, run during the upload request, before any background work starts. A rejected upload gets its error immediately on the upload form, as in the endpoint example in T §6. [T §6, text-check timing decision]
 - **FR-2.3** Identical PDFs are detected by SHA-256 hash before any model call and rejected with a "This PDF is already in the tracker" message. Detecting different files or versions of the same paper is out of scope. [V §2]
 - **FR-2.4** Stored PDFs are named by their SHA-256 hash, never by the user's filename. The original filename is saved in the database for display only. [T §5, CQ3]
 - **FR-2.5** While a paper is processing, the server rejects any new upload with a message such as "Wait until the current paper finishes." The page also disables uploading, but the server check is the one that counts. [CQ5]
@@ -108,8 +110,8 @@ Research Tracker is a locally run web app for one student working on one researc
 ### FR-6 Comparison agent
 
 - **FR-6.0** If the tracker has no sections yet (including when it holds only not-relevant papers), the comparison loop is skipped. One model call, with tools turned off, labels the paper either **New angle** (which starts the first section, with a broad section name per FR-8.2) or **Not relevant or relevance unclear**. It uses the same written relevance criteria as the comparison loop, so a paper's label does not depend on upload order. The reason cites passages from the new paper only. Invalid output is handled as a failed step (FR-11).
-- **FR-6.1** After the card is written, a tool-calling loop compares the new paper with the saved collection. The loop is seeded with the most similar existing cards. [Q3]
-- **FR-6.2** Tools available to the model are read-only lookups of data already in the app: search passages, read a saved card, list sections. The model cannot touch files, run commands or use the internet. [T §5, Q3]
+- **FR-6.1** After the card is written, a tool-calling loop compares the new paper with the saved collection. The loop is seeded with the most similar existing cards. Only papers that have a primary section are comparison targets. Not-relevant papers are never used as seeds. [Q3, stories review]
+- **FR-6.2** Tools available to the model are read-only lookups of data already in the app: search passages, read a saved card, list sections. All three return only papers that have a primary section (and their passages), so the model never sees not-relevant papers. A label or citation that references a not-relevant paper is invalid output (FR-11). The model cannot touch files, run commands or use the internet. [T §5, Q3, stories review]
 - **FR-6.3** The loop stops after a fixed cap of tool calls (between 6 and 8, set in design). [Q3]
 - **FR-6.4** If the cap is reached without a valid classification, the app makes one more model call with tools turned off, asking for the classification from the evidence gathered so far. Invalid output from that call is handled as a failed step (FR-11). [CQ4]
 - **FR-6.5** Passages cited in a classification must come from tool results or the seeded cards. Citations to passages the model did not retrieve are rejected as invalid output. [Q3]
@@ -148,16 +150,17 @@ Research Tracker is a locally run web app for one student working on one researc
 ### FR-10 Background processing and progress
 
 - **FR-10.1** The upload request returns immediately after validation, and processing continues in the background. [Q11]
-- **FR-10.2** The page shows the current step: extracting text, writing card, comparing, updating tracker. It shows the result or the error when processing ends. [Q11]
+- **FR-10.2** The page shows the current step: indexing text (chunking and embedding), writing card, comparing, updating tracker. It shows the result or the error when processing ends. [Q11]
 - **FR-10.3** Only one paper is processed at a time (see FR-2.5). [CQ5]
 
 ### FR-11 Failure handling
 
-- **FR-11.1** A failing step (badly formatted model output, model error or timeout, extraction error) is retried up to 2 more times. [Q13]
+- **FR-11.1** A failing background step (badly formatted model output, a model or embedding error, or an Ollama timeout) is retried up to 2 more times. Text extraction problems are not retried. Extraction happens during the upload request, and its problems are immediate rejections under FR-2.2, because the same file always gives the same text. [Q13, text-check timing decision]
 - **FR-11.2** If the step still fails, nothing about the paper is saved. This covers the database rows, the Chroma embeddings, the stored PDF file and `tracker.md`. The tracker stays exactly as it was, and the page shows an error so the user can try again. [Q13]
 - **FR-11.3** Because nothing is saved, including the file's hash, the user can upload the same PDF again after a failure without hitting duplicate detection. [CQ2, Q13]
 - **FR-11.4** If the app stops while a paper is processing, any partial data for that paper is removed on the next start. [Q13, CQ5]
 - **FR-11.5** Quote verification failures are warnings, not processing failures (see FR-5.4). [CQ2]
+- **FR-11.6** When the start-up cleanup in FR-11.4 removes an interrupted paper, the tracker page shows a notice: "[original filename] was still processing when the app closed, so it was not saved. Upload it again to retry." The notice stays until the user dismisses it. The original filename is used because the title may not have been extracted yet. The temporary "processing" record that holds the filename is deleted once the notice is dismissed, so nothing about the paper remains. [Story plan clarification Q2]
 
 ### FR-12 Inspection view and citations
 
@@ -193,7 +196,7 @@ Research Tracker is a locally run web app for one student working on one researc
 
 ### FR-16 Step timing
 
-- **FR-16.1** The app logs how long each processing step takes (extracting, writing card, comparing, updating tracker) on every upload. [CQ7]
+- **FR-16.1** The app logs how long each step takes (text extraction during the upload request, then indexing, writing card, comparing, updating tracker in the background) on every upload. [CQ7]
 - **FR-16.2** Timing logs stay on the local disk. [T §2]
 
 ### FR-17 Evaluation script
