@@ -134,8 +134,6 @@ def verify_quote(quote: str, pages: list[str], pdf_page: int) -> bool:
 
 ### Typical test
 
-Tests are small, named for the behavior they check, and use inline sample text instead of real PDFs or the model.
-
 ```python
 import pytest
 
