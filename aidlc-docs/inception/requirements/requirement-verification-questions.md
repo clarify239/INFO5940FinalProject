@@ -27,7 +27,7 @@ C) A paper can fully belong to several sections and is counted in each one
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B, a paper might contain more than 1 topic, and having a primary section would make it easiest in terms of reasoning about redudancy, but having secondary sections allows for flexibility in papers covering muliple subtopics. 
 
 ## Question 2
 
@@ -41,7 +41,7 @@ C) Let the model decide using a written rubric of examples from our labeled test
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A, because independent data still provides value to the user. Having this yes-or-no answer is also easy to reason about compared to C. 
 
 ## Question 3
 
@@ -55,7 +55,7 @@ C) Hybrid: a fixed pipeline for card writing, then a capped tool-calling loop on
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: C. Fixed pipeline for cards. Capped tool loop (about 6–8 calls) for comparison and classification, seeded with similar cards, and cited passages must come from tool results.
 
 ## Question 4
 
@@ -69,7 +69,7 @@ C) Only the overview is rewritten. Section summaries are appended to, never rewr
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A, since fixed names keep sections easy to navigate and keep links and "Redundant with" labels consistent, while rewriting summaries (instead of appending) lets them work in contradicting findings. The prompt asks for broad section names so they don't end up too narrow.
 
 ---
 
@@ -87,7 +87,7 @@ C) Ask the model once to give a replacement quote. If that also fails, show the 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A and C, since one retry is cheap (it only runs when a quote fails) and usually gives a quote that checks out, so cards end up with fewer warnings. If the retry also fails, the quote is shown with a clear "Not verified" warning along with the pdf name and page number, as the vision requires.
 
 ## Question 6
 
@@ -101,7 +101,7 @@ C) Inline tags in the web page, and numbered footnotes in the exported Markdown
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: C, since inline tags that expand keep the web page readable without leaving the text, while numbered footnotes are the clearest format for a static Markdown file. The export is already its own renderer, so using different formats in each costs little extra.
 
 ## Question 7
 
@@ -115,7 +115,7 @@ C) Show the full extracted text of the cited page with the passage highlighted
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B, since a link that opens the PDF at the cited page lets users check the quote in its original context, and browsers handle this with no extra work beyond a route that serves stored PDFs (looked up by ID, not file path).
 
 ---
 
@@ -131,7 +131,7 @@ B) Several trackers, each with its own question, chosen from a list on the home 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A, since the vision scopes the MVP to one research question per user. We'll keep tracker_id in the data model and endpoints so supporting several trackers later doesn't require a redesign.
 
 ## Question 9
 
@@ -143,7 +143,7 @@ B) Yes. Removing a paper deletes its card, passages and embeddings, and the affe
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: A, since removing a paper can break other papers' labels (e.g. papers marked "Redundant with" it, or a section it started), which would need re-classification. Removal waits for Phase 2 with the other editing features.
 
 ## Question 10
 
@@ -155,7 +155,7 @@ B) Automatically after every successful paper upload, and also on demand
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]:
+[Answer]: B, since generating the Markdown needs no model call and is instant, so writing it after each successful upload keeps the file always up to date. Export just downloads the current file.
 
 ---
 
