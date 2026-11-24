@@ -5,7 +5,7 @@
 - **Project Name**: Research Tracker
 - **Project Type**: Greenfield
 - **Start Date**: 2026-11-24T01:16:21Z
-- **Current Stage**: INCEPTION - Requirements Analysis (awaiting answers to clarifying questions)
+- **Current Stage**: INCEPTION - Requirements Analysis (awaiting answers to clarification questions, round 2)
 - **AI-DLC Version**: v1.0.1
 - **MVP Deadline**: 2026-12-16
 
@@ -35,9 +35,11 @@
 
 | Extension | Enabled | Decided At |
 |---|---|---|
-| Security Baseline | Pending | Requirements Analysis |
-| Property-Based Testing | Pending | Requirements Analysis |
-| Resiliency Baseline | Pending | Requirements Analysis |
+| Security Baseline | No | Requirements Analysis |
+| Property-Based Testing | Partial (PBT-02, PBT-03, PBT-07, PBT-08, PBT-09 blocking; others advisory) | Requirements Analysis |
+| Resiliency Baseline | No | Requirements Analysis |
+
+Note: Security Baseline is off, but the security rules in `TechnicalDocument.md` Section 5 remain project requirements.
 
 ## Stage Progress
 
@@ -45,7 +47,7 @@
 
 - [x] Workspace Detection
 - [-] Reverse Engineering (SKIPPED - greenfield)
-- [ ] Requirements Analysis (IN PROGRESS - questions issued)
+- [ ] Requirements Analysis (IN PROGRESS - round 1 answered, round 2 clarification issued)
 - [ ] User Stories
 - [ ] Workflow Planning
 - [ ] Application Design
