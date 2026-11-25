@@ -7,6 +7,7 @@
 - Monisha Bommu (mrb359)
 - Claire Cheng (cqc6)
 - Amber Wang (aw896)
+- Tianran Song (ts667)
 
 **Coding agent(s):** Claude Code, ChatGPT Codex  
 **Development methodology:** AI-Driven Development Lifecycle (AI-DLC), v1.0.1  
