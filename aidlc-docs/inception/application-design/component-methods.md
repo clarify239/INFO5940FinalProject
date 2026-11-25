@@ -257,7 +257,7 @@ class JobRunner:
 | `GET /trackers/{tracker_id}/export` | Download `tracker.md` | 200 Markdown attachment | 404 tracker |
 | `POST /notices/{notice_id}/dismiss` | Dismiss an interrupted-paper notice | 303 to `/` | 404 unknown ID |
 
-Note: the technical document's example endpoint returns 201 with the finished card. Background processing (FR-10.1) changes this to 202, and the card arrives through the status endpoint and the tracker page.
+The technical document illustrates the same HTTP 202 response. Clients poll the status endpoint and read the finished card on the tracker page.
 
 ```python
 def create_app(settings: Settings | None = None, client: ModelClient | None = None) -> FastAPI

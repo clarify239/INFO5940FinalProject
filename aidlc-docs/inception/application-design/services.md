@@ -35,7 +35,7 @@ There are three services, meaning components that call other components in seque
 | Comparison | Step 3 is never rerun as a whole. Retries happen inside the agent (turn re-asks, then retries of the final call only) | FR-6.3, FR-6.4, FR-11.1 |
 | Failure | After the retries run out, the draft is discarded. Because nothing was written yet, nothing is left. `finish_job` runs, and `ProcessingFailed(step, message)` is raised | FR-11.2, FR-11.3 |
 | Commit failure | If the commit itself fails partway (for example a disk error after the PDF is written), anything written is removed, by the same rule start-up cleanup uses: anything without a committed SQLite row is deleted | FR-11.2, Q4 |
-| Export after commit | If writing `tracker.md` fails after a successful commit, the paper stays saved. `tracker.md` is regenerated at the next start-up or after the next upload | Q4 follow-on |
+| Export after commit | If writing `tracker.md` fails after a successful commit, the paper stays saved. `tracker.md` is regenerated at the next start-up or after the next upload | Application design Q4, FR-13.1 |
 | Quote failures | Never fail a step. They become quote statuses and the card-level note | FR-5.4, FR-11.5 |
 
 ### Worst-case model calls per paper
@@ -71,7 +71,7 @@ worker thread
 ```text
 notices = store.cleanup_uncommitted()
   - delete PDF files and Chroma entries whose paper is not committed
-  - every leftover job record (the app stopped mid-processing) becomes a notice
+  - leftover job records for uncommitted papers become interruption notices
 store.write_tracker_md(tracker)               # always regenerated; cheap, no model
 JobRunner.start()
 ```

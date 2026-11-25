@@ -21,6 +21,7 @@ Students often record academic papers as separate summaries, making it difficult
   - **New angle:** starts a new section because it introduces a relevant subtopic, method, or viewpoint not represented in the existing sections.
   - **Adds to [section]:** contributes additional relevant evidence, with a relationship of agrees, contradicts, extends, or unclear. Independent evidence supporting an existing finding can count as an addition.
   - **Redundant with [paper]:** no substantial new contribution to the research question is identified beyond an existing paper. It is still recorded in the referenced paper’s section, not discarded. This label describes overlap within the uploaded collection, not the paper’s overall value.
+- Relevant papers can link to secondary sections that already exist at upload time. These links are for display only and affect neither counts nor redundancy decisions.
 - **Evidence-based comparison:** the agent compares the new card against existing cards in small batches and retrieves original passages when needed. Agreement or contradiction is assessed only when claims are sufficiently comparable in methods, populations, and conditions.
 - **Reasons:** every label comes with a one-sentence explanation and references to the passages it relied on. Cross-paper assessments reference evidence from both papers.
 - **Off-topic papers:** papers with no established connection to the question are recorded separately as "Not relevant or relevance unclear," with a reason. They are excluded from topical section counts but included in the total saved-paper count.
@@ -69,12 +70,16 @@ Measured on a manually labeled test set of up to 10 papers on one question, incl
 - **Overwriting earlier notes:** rewriting the tracker after each upload could drop older content. This needs testing across many additions and sessions.
 - **Local model limits:** Qwen3 8B may cut off long papers if the context window is too small, return badly formatted output, or slow down as the collection grows.
 
-## 8. Open Questions
+## 8. Decisions and Open Questions
 
-- Can a paper belong to more than one section? (This decides how counts and redundancy work.)
-- Where is the line between "redundant" and "adds modest evidence"? Do redundant papers count toward section totals?
-- If a label or section name is wrong, is inspecting it enough for the MVP, or do users need a simple way to correct it?
-- How should citations appear in the tracker and in the inspection view, and what does the user see when a quote can't be verified?
-- How should an off-topic paper be handled: a "not relevant" label, or rejected at upload?
-- Is Qwen3 8B accurate and fast enough on our laptops? What context window do we need for long papers, and what is the fallback if it falls short?
-- Will the interface be a command-line tool or a local web page?
+### Resolved during Inception
+
+- A relevant paper has one primary section and can link to existing related sections at upload. No links are added to older papers when a new section is created.
+- Independent supporting evidence counts as an addition. Redundant papers stay in their primary section and count toward its total.
+- Users can inspect classifications and evidence in the MVP. Editing classifications, changing sections, and removing papers are deferred.
+- The local web page uses expandable inline citations. Markdown uses numbered footnotes. Unverified quotes remain visibly flagged, and the web page links to the cited PDF page.
+- Off-topic or uncertain papers are saved in the separate relevance group and excluded from topical counts.
+
+### Open questions
+
+- How fast and accurate is Qwen3 8B on the team's laptops, and which context length, thinking mode, chunk size, and batch size work best? The evaluation will compare settings, and the approved configuration permits switching to a smaller local model.

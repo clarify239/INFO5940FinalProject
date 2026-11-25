@@ -363,3 +363,29 @@ One thing im thinking about is to skip the loop and make one model call that dec
 **Context**: INCEPTION complete; CONSTRUCTION not started (paused)
 
 ---
+
+## Retrospective Mid-Semester Milestone Review
+
+The user requested a review against the full milestone directions and corrections to agent rule placement, the prohibited libraries table, completion labels, and inconsistencies across requirements, stories, design, and vision. The user directed the workflow to remain paused after Units Generation and requested preservation of the team's decisions and approvals.
+
+The team reports that Claude generated the clarification questions, the team discussed them with AI assistance, and the recorded answers reflect its decisions. This retrospective account records what the team reported.
+
+Codex inspected the live Desktop checkout and confirmed the existing approval entries through Units Generation. The checkout denied direct writes. Codex prepared these documentation and rule placement changes as a patch against the live revision. The patch copies the local bundle into both agent entry files and the shared details directory. This records file placement only. Upstream provenance and fresh-session agent loading remain unverified.
+
+The patch aligns the story criteria with the accepted model call cap and final call retry decision. It uses the approved Application Design Q4 commit boundary and the post-commit export behavior in the approved services design. It updates the technical endpoint example to match the background upload design, carries the recorded citation and section link decisions into the vision, and reconciles planning labels with existing approvals. Unit responsibilities and original answers are preserved. No new approval or application test result was recorded. Construction remains paused.
+
+## Publishing reviewed milestone corrections
+
+Recorded at 2026-11-25T03:18:53Z
+
+User input
+
+> alright, we can push changes
+
+AI actions
+
+Reviewed the current uncommitted changes based on commit b06ddc2d70e075e8a9aafd85f29379aff9a7161a. Added the previously requested limit of 10 papers per tracker and 20 PDF pages per paper to the README scope paragraph. Preserved AGENTS.md and CLAUDE.md without project writing instructions or punctuation changes. Verified both core copies and all 31 rule detail files against the original bundle, checked that question answers are nonempty, and parsed the technical document Python examples without executing them. No application code or model tests were run because these are documentation and rule-installation changes. Inception remains complete and Construction paused.
+
+The user authorized committing and pushing the corrections. Publication uses a fresh writable copy because the source checkout at /Users/nicolelin/INFO5940FinalProject is read-only in this session. Its local working tree is unchanged.
+
+---

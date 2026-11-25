@@ -1,6 +1,6 @@
 # Requirements: Research Tracker (MVP)
 
-**Status**: Draft for team review
+**Status**: Approved during Inception
 **MVP deadline**: 2026-12-16
 **Sources**: `VisionDocument.md` (V), `TechnicalDocument.md` (T), `README.md` (R), `requirement-verification-questions.md` (Q1–Q20), `requirement-clarification-questions.md` (CQ1–CQ8)
 
@@ -19,7 +19,7 @@ Each requirement names its source in brackets so it can be traced back to a docu
 
 ## 2. Product Summary
 
-Research Tracker is a locally run web app for one student working on one research question. Each uploaded paper becomes a cited paper card. An LLM agent (Qwen3 8B through Ollama) then compares the paper with the papers already saved and labels it as a new angle, an addition to an existing section, redundant with an earlier paper, or not relevant. Every label has a reason and evidence. Code, not the model, checks every quote against its cited PDF page. The tracker persists across sessions and is written to a readable `tracker.md` after every successful upload. All assessments describe only the uploaded collection, never the research field as a whole. [V §1]
+Research Tracker is a locally run web app for one student working on one research question. Each uploaded paper becomes a cited paper card. An LLM agent (Qwen3 8B through Ollama) then compares the paper with the papers already saved and labels it as a new angle, an addition to an existing section, redundant with an earlier paper, or not relevant. Every label has a reason and evidence. Code, not the model, checks every quote against its cited PDF page. The tracker persists across sessions and is exported to a readable `tracker.md` from committed data. All assessments describe only the uploaded collection, never the research field as a whole. [V §1]
 
 ## 3. Key Decisions
 
@@ -29,7 +29,7 @@ Research Tracker is a locally run web app for one student working on one researc
 | Trackers | One tracker per installation; `tracker_id` kept in data model and endpoints for later expansion | Q8 |
 | Sections per paper | One primary section; optional secondary "related sections" (display-only links), assigned at upload only | Q1, CQ1 |
 | Redundant vs adds | Redundant only when there is no new population, method, condition or independent dataset | Q2 |
-| Agent design | Fixed pipeline for cards; capped tool-calling loop (6–8 calls) for comparison and classification | Q3 |
+| Agent design | Fixed pipeline for cards; capped tool-calling loop (6–8 model calls) for comparison and classification | Q3 |
 | Cap reached | One final tool-free call for a label; invalid output follows failure rules | CQ4 |
 | Section edits | Names fixed once created; section summaries and overview rewritten | Q4 |
 | Failed quotes | One retry, then shown with a "Not verified" warning; a card with no verified quote is still saved, with a card-level note | Q5, CQ2 |
@@ -37,7 +37,7 @@ Research Tracker is a locally run web app for one student working on one researc
 | Citations | Inline expandable tags on the web page; numbered footnotes in `tracker.md` | Q6 |
 | Evidence view | Cited passage plus a link that opens the stored PDF at the cited page | Q7 |
 | Removing papers | Not in MVP | Q9 |
-| `tracker.md` | Rewritten after every successful upload; Export downloads it | Q10 |
+| `tracker.md` | Regenerated after commit with recovery on the next start-up or successful upload if generation fails. Export downloads the current file | Q10 |
 | Processing | Background with step-by-step progress; new uploads blocked while one is processing | Q11, CQ5 |
 | Failures | Retry a failing step twice; if it still fails, save nothing | Q13 |
 | Speed | No fixed target; time every step and report | Q12, CQ7 |
@@ -156,9 +156,9 @@ Research Tracker is a locally run web app for one student working on one researc
 ### FR-11 Failure handling
 
 - **FR-11.1** A failing background step (badly formatted model output, a model or embedding error, or an Ollama timeout) is retried up to 2 more times. The comparison step is the exception. Inside its loop, a failed turn (invalid output, a model error or a timeout) is re-asked under FR-6.3, and only its final tool-free call is retried, under FR-6.4. The whole comparison step is never rerun. Text extraction problems are not retried. Extraction happens during the upload request, and its problems are immediate rejections under FR-2.2, because the same file always gives the same text. [Q13, text-check timing decision]
-- **FR-11.2** If the step still fails, nothing about the paper is saved. This covers the database rows, the Chroma embeddings, the stored PDF file and `tracker.md`. The tracker stays exactly as it was, and the page shows an error so the user can try again. [Q13]
-- **FR-11.3** Because nothing is saved, including the file's hash, the user can upload the same PDF again after a failure without hitting duplicate detection. [CQ2, Q13]
-- **FR-11.4** If the app stops while a paper is processing, any partial data for that paper is removed on the next start. [Q13, CQ5]
+- **FR-11.2** If a processing step still fails or the save fails before the SQLite transaction commits, the paper is not added. Partial PDF and Chroma writes are removed and existing tracker content and Markdown stay intact. The page reports the failure and allows another upload. The SQLite commit establishes that the paper is saved. [Q13, application design Q4]
+- **FR-11.3** After a failure before commit, the user can upload the same PDF again because its hash was not committed. [CQ2, Q13]
+- **FR-11.4** On start-up, partial paper data without a committed SQLite row is removed. Any committed paper remains saved. [Q13, CQ5, application design Q4]
 - **FR-11.5** Quote verification failures are warnings, not processing failures (see FR-5.4). [CQ2]
 - **FR-11.6** When the start-up cleanup in FR-11.4 removes an interrupted paper, the tracker page shows a notice: "[original filename] was still processing when the app closed, so it was not saved. Upload it again to retry." The notice stays until the user dismisses it. The original filename is used because the title may not have been extracted yet. The temporary "processing" record that holds the filename is deleted once the notice is dismissed, so nothing about the paper remains. [Story plan clarification Q2]
 
@@ -172,7 +172,7 @@ Research Tracker is a locally run web app for one student working on one researc
 
 ### FR-13 Markdown export
 
-- **FR-13.1** `tracker.md` is rewritten from saved data, with no model call, after every successful upload. [Q10]
+- **FR-13.1** `tracker.md` is regenerated from saved data after commit without a model call. If regeneration fails, the committed paper stays saved. The next start-up or successful upload regenerates the Markdown from saved data. [Q10, approved application design services]
 - **FR-13.2** It contains the question, the overview, the sections with summaries and counts, the cards, labels and reasons, the not-relevant group, the coverage counts, and the year range. [V §2]
 - **FR-13.3** Citations in `tracker.md` are numbered footnotes ([1], [2], …). Each footnote gives the paper's display name, the PDF page and the quoted passage, and marks unverified quotes. [Q6]
 - **FR-13.4** An "Export" action downloads the current `tracker.md`. [Q10]
@@ -285,7 +285,7 @@ These are measured on a manually labeled test set of up to 10 papers on one ques
 ## 9. Assumptions and Items for Later Stages
 
 - **A-1** The language is not detected automatically. Users are told the app supports English papers only. [V §2]
-- **A-2** The exact tool-call cap (6–8), chunk size, batch size, the "too little text" threshold, the minimum quote length (default 8 words) and the context size in the Modelfile are set during design and tuned with the evaluation script.
+- **A-2** The exact comparison model call cap (6–8), chunk size, batch size, the "too little text" threshold, the minimum quote length (default 8 words) and the context size in the Modelfile are set during design and tuned with the evaluation script.
 - **A-3** Thinking mode is applied through whichever mechanism Ollama's OpenAI-compatible API supports for Qwen3 (an API option or Qwen3's `/think` and `/no_think` prompt switch). This is confirmed during design. [Q16]
 - **A-4** The context length in `.env` must match the context size built into the Modelfile. The setup instructions say so, and a fallback model needs its own Modelfile. [CQ8]
 - **A-5** Opening a PDF at a cited page relies on the browser's built-in PDF viewer. Some browsers (notably Safari) may not jump to the page. The cited passage is always shown next to the link, so evidence stays readable. [Q7]

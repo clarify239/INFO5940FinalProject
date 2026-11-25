@@ -22,8 +22,8 @@
 - **Build System**: None yet (planned: uv with `pyproject.toml` / `uv.lock`)
 - **Project Structure**: Empty
 - **Reverse Engineering Needed**: No
-- **Workspace Root**: /Users/mokshamac/College/Sophomore/INFO5940FinalProject
-- **Rule Details Directory**: `aws-aidlc-rule-details/` (repository root)
+- **Workspace Root**: repository root of the active checkout
+- **Rule Details Directory**: `.aidlc-rule-details/` (repository root)
 
 ## Code Location Rules
 

@@ -41,9 +41,9 @@ flowchart TD
         RE["Reverse Engineering<br/><b>SKIP</b>"]
         RA["Requirements Analysis<br/><b>COMPLETED</b>"]
         US["User Stories<br/><b>COMPLETED</b>"]
-        WP["Workflow Planning<br/><b>IN PROGRESS</b>"]
-        AD["Application Design<br/><b>EXECUTE</b>"]
-        UG["Units Generation<br/>(Planning + Generation)<br/><b>EXECUTE</b>"]
+        WP["Workflow Planning<br/><b>COMPLETE</b>"]
+        AD["Application Design<br/><b>COMPLETE</b>"]
+        UG["Units Generation<br/>(Planning + Generation)<br/><b>COMPLETE</b>"]
     end
 
     subgraph CONSTRUCTION["CONSTRUCTION PHASE"]
@@ -107,9 +107,9 @@ INCEPTION PHASE
 - Reverse Engineering ........ SKIPPED (greenfield)
 - Requirements Analysis ...... COMPLETED
 - User Stories ............... COMPLETED
-- Workflow Planning .......... IN PROGRESS
-- Application Design ......... EXECUTE
-- Units Generation ........... EXECUTE
+- Workflow Planning .......... COMPLETE
+- Application Design ......... COMPLETE
+- Units Generation ........... COMPLETE
 
 CONSTRUCTION PHASE (repeat for each unit)
 - Functional Design .......... EXECUTE
@@ -132,8 +132,8 @@ OPERATIONS PHASE
 - [x] Reverse Engineering (SKIPPED: greenfield, no existing code)
 - [x] Requirements Analysis (COMPLETED)
 - [x] User Stories (COMPLETED)
-- [x] Workflow Planning (IN PROGRESS)
-- [ ] Application Design: **EXECUTE**
+- [x] Workflow Planning (COMPLETE)
+- [x] Application Design (**COMPLETE**)
   - **Rationale**: Every component is new. They need defined responsibilities, methods and dependencies:
     - PDF intake and validation
     - indexing
@@ -147,7 +147,7 @@ OPERATIONS PHASE
     - web views
     - evaluation
   - The README plans to "agree on shared data formats and tool interfaces before implementation." This stage is where that happens. It must also settle one cross-cutting design: how a paper is saved all-or-nothing across three stores.
-- [ ] Units Generation: **EXECUTE**
+- [x] Units Generation (**COMPLETE**)
   - **Rationale**: Four people will build five areas in parallel (README §4). The system needs splitting into units with clear boundaries, dependencies and a story-to-unit map, so that each owner can work against sample inputs and the fake model without waiting on others.
 
 ### CONSTRUCTION PHASE
@@ -190,7 +190,9 @@ OPERATIONS PHASE
 
 ## Estimated Timeline
 
-- **Stages still to run**: 5 (Application Design, Units Generation, then Functional Design and Code Generation per unit, then Build and Test)
+- **Stages still to run** (paused before Construction)
+  - Functional Design and Code Generation per unit
+  - Build and Test
 - **Suggested schedule** toward 2026-12-16:
 
 | Dates (2026) | Work |

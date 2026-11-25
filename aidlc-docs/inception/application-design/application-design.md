@@ -18,7 +18,7 @@ This document combines `components.md`, `component-methods.md`, `services.md` an
 | 10 | Settings | `pydantic-settings`; start-up fails naming any bad setting; Ollama URL must be localhost | Q10 |
 | 11 | Database schema | `schema.sql` with a version number; mismatch stops start-up with a clear message | Q11 |
 | 12 | Interrupted papers | The job record is saved before processing, outside the paper's commit, and becomes a notice at start-up | FR-11.6 |
-| 13 | `tracker.md` | Regenerated at every start-up and after every successful commit | Q4 follow-on |
+| 13 | `tracker.md` | Regenerated at every start-up and after every successful commit | Application design Q4, FR-13.1 |
 | 14 | Upload response | 202 with job status (changed from the technical document's 201 example, because processing is in the background) | FR-10.1 |
 
 ## Items Left for Functional Design
@@ -266,7 +266,7 @@ These types cross component boundaries. They are Pydantic models (Q6), so the sa
   - apply step retries (FR-11.1)
   - report progress through a callback
   - time each step (FR-16)
-  - on failure, discard the in-memory draft and make sure nothing is left on disk
+  - before commit, discard the draft on failure and remove partial paper data. After commit, an export failure leaves the paper saved
 - **Interface**: `process(...) -> PaperRecord` or `ProcessingFailed`. Details in services.md.
 - **Stories**: US-04, US-08; used by US-24
 
@@ -611,7 +611,7 @@ class JobRunner:
 | `GET /trackers/{tracker_id}/export` | Download `tracker.md` | 200 Markdown attachment | 404 tracker |
 | `POST /notices/{notice_id}/dismiss` | Dismiss an interrupted-paper notice | 303 to `/` | 404 unknown ID |
 
-Note: the technical document's example endpoint returns 201 with the finished card. Background processing (FR-10.1) changes this to 202, and the card arrives through the status endpoint and the tracker page.
+The technical document illustrates the same HTTP 202 response. Clients poll the status endpoint and read the finished card on the tracker page.
 
 ```python
 def create_app(settings: Settings | None = None, client: ModelClient | None = None) -> FastAPI
@@ -676,7 +676,7 @@ There are three services, meaning components that call other components in seque
 | Comparison | Step 3 is never rerun as a whole. Retries happen inside the agent (turn re-asks, then retries of the final call only) | FR-6.3, FR-6.4, FR-11.1 |
 | Failure | After the retries run out, the draft is discarded. Because nothing was written yet, nothing is left. `finish_job` runs, and `ProcessingFailed(step, message)` is raised | FR-11.2, FR-11.3 |
 | Commit failure | If the commit itself fails partway (for example a disk error after the PDF is written), anything written is removed, by the same rule start-up cleanup uses: anything without a committed SQLite row is deleted | FR-11.2, Q4 |
-| Export after commit | If writing `tracker.md` fails after a successful commit, the paper stays saved. `tracker.md` is regenerated at the next start-up or after the next upload | Q4 follow-on |
+| Export after commit | If writing `tracker.md` fails after a successful commit, the paper stays saved. `tracker.md` is regenerated at the next start-up or after the next upload | Application design Q4, FR-13.1 |
 | Quote failures | Never fail a step. They become quote statuses and the card-level note | FR-5.4, FR-11.5 |
 
 #### Worst-case model calls per paper
@@ -712,7 +712,7 @@ worker thread
 ```text
 notices = store.cleanup_uncommitted()
   - delete PDF files and Chroma entries whose paper is not committed
-  - every leftover job record (the app stopped mid-processing) becomes a notice
+  - leftover job records for uncommitted papers become interruption notices
 store.write_tracker_md(tracker)               # always regenerated; cheap, no model
 JobRunner.start()
 ```

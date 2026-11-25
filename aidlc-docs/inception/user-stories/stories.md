@@ -152,10 +152,11 @@ As a student researcher, I want to be told to wait if I try to upload while anot
 As a student researcher, I want a failed or interrupted paper to leave my tracker untouched and tell me to try again, so that I never end up with a half-saved paper I cannot remove.
 
 **Acceptance criteria**
-- **Given** a background step fails (badly formatted model output, a model or embedding error, or an Ollama timeout), **when** it fails, **then** the step is retried up to 2 more times before giving up
-- **Given** a step still fails after its retries, **when** processing stops, **then** nothing about the paper remains in SQLite, Chroma, the PDF folder or `tracker.md`, the tracker looks exactly as before, and the page shows an error saying the paper was not added and can be uploaded again
-- **Given** processing failed for a PDF, **when** the student uploads the same PDF again, **then** it is not rejected as a duplicate
-- **Given** the app was closed while a paper was processing, **when** the app starts again, **then** all partial data for that paper is removed, and the tracker page shows "[original filename] was still processing when the app closed, so it was not saved. Upload it again to retry."
+- **Given** a background step other than comparison fails (badly formatted model output, a model or embedding error, or an Ollama timeout), **when** it fails, **then** the step is retried up to 2 more times before giving up
+- **Given** processing fails after its applicable retries or the save fails before the SQLite commit, **when** processing stops, **then** any partial paper data is removed, existing tracker content and Markdown stay intact, and the page shows an error saying the paper can be uploaded again
+- **Given** the comparison step fails, **when** a retry is available, **then** it follows the turn and final call rules in US-12 without restarting the comparison loop
+- **Given** processing failed before committing a PDF, **when** the student uploads the same PDF again, **then** it is not rejected as a duplicate
+- **Given** the app was closed before a paper was committed, **when** the app starts again, **then** all partial data for that paper is removed, and the tracker page shows "[original filename] was still processing when the app closed, so it was not saved. Upload it again to retry."
 - **Given** that notice is showing, **when** the student dismisses it, **then** the notice disappears and the temporary processing record is deleted, so nothing about the paper remains
 - [ ] A quote that fails verification does not count as a processing failure (see US-10)
 
@@ -200,7 +201,7 @@ As a student researcher, I want to see which quotes were confirmed on their cite
 As a student researcher, I want my first on-topic paper to start the first section, while an off-topic first paper is set aside, so that the tracker does not begin with a section about the wrong topic.
 
 **Acceptance criteria**
-- **Given** the tracker has no sections (empty, or holding only not-relevant papers), **when** a new paper's card is saved, **then** the comparison loop is skipped and one model call with no tools labels the paper either "New angle" or "Not relevant or relevance unclear"
+- **Given** the tracker has no sections (empty, or holding only not-relevant papers), **when** a new paper's card is generated, **then** the comparison loop is skipped and one model call with no tools labels the paper either "New angle" or "Not relevant or relevance unclear"
 - **Given** the label is "New angle", **when** the tracker is updated, **then** a first section is created with the model's proposed broad name, and the paper is placed in it
 - **Given** either label, **when** it is shown, **then** it has a one-sentence reason citing at least one passage from the new paper only
 - **Given** output that is not one of those two labels or lacks a reason or citation, **when** it is checked, **then** it is treated as a failed step (see US-08)
@@ -214,10 +215,12 @@ As a student researcher, I want my first on-topic paper to start the first secti
 As a student researcher, I want each new paper labeled against the papers already in my tracker, with a reason, so that I can see at a glance whether it opens a new angle or adds to something I have.
 
 **Acceptance criteria**
-- **Given** at least one section exists, **when** a new paper's card is saved, **then** a tool-calling loop starts, seeded with the most similar saved cards of papers that have a primary section, and existing cards are given to the model in small batches, never all at once
-- **Given** the loop is running, **when** the model calls tools, **then** only the read-only tools (search passages, read a saved card, list sections) are available, they return only papers that have a primary section and their passages, and the loop stops at the tool-call cap
+- **Given** at least one section exists, **when** a new paper's card is generated, **then** a tool-calling loop starts, seeded with the most similar saved cards of papers that have a primary section, and existing cards are given to the model in small batches, never all at once
+- **Given** the loop is running, **when** the model calls tools, **then** only the read-only tools (search passages, read a saved card, list sections) are available, they return only papers that have a primary section and their passages, and the loop counts each model call once regardless of how many tools that call invokes
 - **Given** the tracker also holds not-relevant papers, **when** the loop runs, **then** no seed, tool result or prompt contains a not-relevant paper's card or passages
-- **Given** the cap is reached without a valid label, **when** the loop stops, **then** one final model call with tools turned off asks for a label from the evidence gathered; if that output is invalid it is a failed step (see US-08)
+- **Given** a loop turn fails or returns invalid output, **when** the model call cap allows, **then** that turn is re-asked up to two more times and each re-ask counts toward the cap
+- **Given** the loop ends without a valid label, **when** the cap is reached or a turn remains invalid after its re-asks, **then** a final tool-free model call asks for a label from the evidence already gathered
+- **Given** the final tool-free call fails or returns invalid output, **when** a retry is available, **then** only that call is retried up to two more times with the same evidence. If it still fails, processing fails before commit under US-08
 - **Given** a final label, **when** it is checked, **then** it is exactly one of "New angle", "Adds to [existing section]" with a relationship of agrees, contradicts, extends or unclear, "Redundant with [existing paper]", or "Not relevant or relevance unclear"
 - **Given** an "Adds to" or "Redundant" label, **when** it is checked, **then** its reason cites at least one passage from the new paper and one from the other paper
 - **Given** any label, **when** it is checked, **then** every cited passage came from a tool result or a seeded card; a citation to a passage the model never retrieved, or a label or citation that names a not-relevant paper, makes the output invalid (see US-08)
@@ -360,11 +363,12 @@ As a student researcher, I want to see the earliest and latest publication years
 As a student researcher, I want to download my tracker as a Markdown file, so that I can use it in my own notes and writing.
 
 **Acceptance criteria**
-- [ ] `tracker.md` is rewritten from saved data after every successful upload, with no model call
+- [ ] The app regenerates `tracker.md` from saved data after commit without a model call
 - [ ] It contains the question, the overview, the sections with summaries and counts, each card with its label and reason, the not-relevant group, the coverage counts and the year range
 - [ ] Citations are numbered footnotes ([1], [2], …). Each gives the display name, the PDF page and the quoted passage, and marks unverified quotes as "Not verified"
 - [ ] An "Export" action downloads the current `tracker.md`
-- [ ] A failed upload leaves `tracker.md` exactly as it was
+- [ ] A failure before commit leaves the existing `tracker.md` intact
+- [ ] If Markdown regeneration fails after commit, the paper stays saved and the file is regenerated at the next start-up or successful upload
 
 ### US-23: Reopen my tracker and keep going
 
@@ -454,7 +458,7 @@ As a team evaluator, I want a timing summary for each processing step, so that w
 As a team evaluator, I want to change a setting such as thinking mode or chunk size and re-run the evaluation, so that we can choose the setup that works best from data.
 
 **Acceptance criteria**
-- [ ] Thinking mode, model name and context length can be changed in `.env` without code changes; tuning values set in design (chunk size, batch size, tool-call cap, minimum quote length, "too little text" threshold) are kept in one settings place
+- [ ] Thinking mode, model name and context length can be changed in `.env` without code changes; tuning values set in design (chunk size, batch size, comparison model call cap, minimum quote length, "too little text" threshold) are kept in one settings place
 - [ ] The report states the settings used for the run
 - [ ] Because `eval-data/` is cleared at the start of each run, results from different settings never mix
 - [ ] Turning thinking mode on or off changes how the model is called, as confirmed in design (A-3)

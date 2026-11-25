@@ -33,26 +33,16 @@ To test endpoints (like the PDF upload), unit tests use FastAPI's `TestClient`. 
 
 ## 4. Prohibited libraries
 
-The libraries below may not be added to `pyproject.toml`:
+The libraries and approaches below are prohibited for this project.
 
-- **LangChain, LlamaIndex**
-  - *Reason:* they hide the prompts and tool-call loop behind layers of abstraction, which makes any unexpected model outputs hard to debug. They also install many extra libraries and change often so existing code would break
-  - *Use instead:* Ollama's OpenAI-compatible API to send prompts to Qwen3, plus a few Python functions we write ourselves to handle each step (summarizing articles, comparing articles etc.)
-- **Hosted LLM APIs (anthropic, google-genai etc.)**
-  - *Reason:* Instead of handling requests locally, the model would be hosted on a third-party server.
-  - *Use instead:* We plan to host the LLM model locally with Ollama
-- **PyPDF2**
-  - *Reason:* This library is deprecated. It was merged into pypdf
-  - *Use instead:* pypdf
-- **PyMuPDF**
-  - *Reason:* Its AGPL license would require releasing the whole project under the AGPL
-  - *Use instead:* pypdf
-- **Pytesseract and other OCR Libraries**
-  - *Reason:* scanned PDFs are out of scope
-  - *Use instead:* reject PDFs with little to no extractable text, with a clear error
-- **Pickle, shelve for tracker**
-  - *Reason:* the app stores each user's paper notes in a file on their laptop so they are still there next time. If the file was tampered, pickle would run any harmful code hidden in it when the app opens it. The Python documentation itself warns against this.
-  - *Use instead:* SQLite database to store information about evidence, major topics etc. When new information is added, SQLite saves only the new part, while pickle rewrites the whole file. So if the app crashes mid-save, SQLite keeps all earlier work, but pickle can lose it.
+| Prohibited library or approach | Reason | Recommended alternative |
+|---|---|---|
+| LangChain and LlamaIndex | Their abstractions obscure prompts and tool calls during debugging. Extra dependencies and frequent changes add maintenance work. | Call Qwen3 through Ollama's OpenAI-compatible API and use project Python functions to manage each step. |
+| Hosted LLM APIs such as `anthropic` and `google-genai` | A third-party server would process requests and paper data. | Run Qwen3 locally with Ollama. |
+| PyPDF2 | PyPDF2 was superseded by the actively maintained pypdf. | Use pypdf. |
+| PyMuPDF | The team chose to avoid an additional licensing review. | Use pypdf. |
+| Pytesseract and other OCR libraries | Scanned PDFs are outside the MVP scope. | Reject PDFs with too little extractable text and show a clear error. |
+| Pickle or shelve for tracker storage | Loading tampered data can run code. Rewriting a serialized tracker file can lose prior data if interrupted. | Store structured tracker data in SQLite and use transactions for atomic updates. |
 
 ## 5. Security Basics
 
@@ -69,42 +59,34 @@ The main risks are an exposed local server and hostile PDF uploads. The followin
 
 ### Typical endpoint
 
-`POST /api/trackers/{tracker_id}/papers` accepts one PDF as multipart form data and returns the new paper's card and label. This is planned code: the helpers it imports (`get_db`, `extract_pages`, `process_paper`) will be built in their own modules.
+`POST /api/trackers/{tracker_id}/papers` validates and extracts one multipart PDF during the request, then queues background processing. The example uses illustrative application dependencies. The client receives HTTP 202 with the processing status and polls `GET /api/trackers/{tracker_id}/status` for the outcome. The finished card appears on the tracker page.
 
 ```python
-import hashlib
+from fastapi import APIRouter, Depends, UploadFile
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from research_tracker.web.dependencies import get_job_runner, get_upload_service
+from research_tracker.web.models import JobStatus
 
-from research_tracker.db import Database, get_db
-from research_tracker.models import PaperResult
-from research_tracker.pdf import PdfRejected, extract_pages
-from research_tracker.pipeline import process_paper
-
-MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 router = APIRouter()
 
 
-@router.post("/api/trackers/{tracker_id}/papers", status_code=201, response_model=PaperResult)
-def upload_paper(tracker_id: int, file: UploadFile, db: Database = Depends(get_db)) -> PaperResult:
-    tracker = db.get_tracker(tracker_id)
-    if tracker is None:
-        raise HTTPException(404, "Tracker not found")
-
-    data = file.file.read(MAX_UPLOAD_BYTES + 1)
-    if len(data) > MAX_UPLOAD_BYTES or not data.startswith(b"%PDF-"):
-        raise HTTPException(400, "Upload a PDF file under 25 MB")
-
-    sha256 = hashlib.sha256(data).hexdigest()
-    if db.paper_exists(tracker_id, sha256):
-        raise HTTPException(409, "This PDF is already in the tracker")
-
-    try:
-        pages = extract_pages(data)  # list of page texts; index 0 is PDF page 1
-    except PdfRejected as err:  # encrypted, over 20 pages, or too little text
-        raise HTTPException(422, str(err))
-
-    return process_paper(db, tracker, pages, sha256)
+@router.post("/api/trackers/{tracker_id}/papers", status_code=202, response_model=JobStatus)
+def upload_paper(
+    tracker_id: int,
+    file: UploadFile,
+    uploads=Depends(get_upload_service),
+    jobs=Depends(get_job_runner),
+) -> JobStatus:
+    # The upload service checks tracker, size, format, duplicates and paper limits.
+    extracted = uploads.check_and_extract(tracker_id, file)
+    jobs.submit(tracker_id, extracted)
+    return JobStatus(
+        state="processing",
+        step=None,
+        original_filename=extracted.original_filename,
+        error=None,
+        paper_id=None,
+    )
 ```
 
 ### Typical function

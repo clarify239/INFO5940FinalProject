@@ -231,7 +231,7 @@ These types cross component boundaries. They are Pydantic models (Q6), so the sa
   - apply step retries (FR-11.1)
   - report progress through a callback
   - time each step (FR-16)
-  - on failure, discard the in-memory draft and make sure nothing is left on disk
+  - before commit, discard the draft on failure and remove partial paper data. After commit, an export failure leaves the paper saved
 - **Interface**: `process(...) -> PaperRecord` or `ProcessingFailed`. Details in services.md.
 - **Stories**: US-04, US-08; used by US-24
 
